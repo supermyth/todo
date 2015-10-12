@@ -1,0 +1,20 @@
+{
+  "name": "HCI-HW2-Raeok.Kim",
+  "version": "1.0.0",
+  "authors": [
+    "Raeok Kim <kimraeok@naver.com>"
+  ],
+  "description": "#2 Homework of HCI. It might help you to make TODO LIST and manage it.",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "jquery-legacy": "jquery#^1"
+  }
+}
