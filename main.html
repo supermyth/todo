@@ -1,9 +1,76 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title>TODO</title>
+		<link rel="stylesheet" href="bower_components/jquery-ui/themes/ui-lightness/jquery-ui.min.css">
+		<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="css/theme.css" rel="stylesheet">
+		<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	</head>
 	<body>
-		
+		<div class="container">
+			<div class="tabbable">
+				<ul class="nav nav-tabs" id="tabs">
+					<li class="active">
+						<a href="#now" data-toggle="tab">Now</a>
+					</li>
+					<li>
+						<a href="#archived">Archived</a>
+					</li>
+				</ul>
+				<div id="components" style="position:relative">
+					<div id="now" style="height:1000px">
+						<div class="page-header">
+							<label>Double Click to Add New</label>
+							<button type="button" class="btn btn-sm btn-info" onclick="javascript:alert('COMMING SOON');">Copy from yesterday</button>
+							<button type="button" class="btn btn-sm btn-primary" onclick="javascript:alert('COMMING SOON');">Archive This</button>
+						</div>
+						<div id="memos" class="clearfix border1">
+							
+						</div>
+						
+					</div>
+					<div id="archived" class="invisible"></div>
+				</div>
+			</div>
+
+		</div>
+		<script type="text/html" id="memo_sample">
+			<div class="memo border1 width150 height150">
+				<div class="memo-header">
+					<div class="memo-input">
+						<input type="text" class="datepicker" />
+					</div>
+					<div class="memo-button important"></div>
+					<div class="memo-button remove"></div>
+				</div>
+				<div class="memo-content">
+					<span></span>
+					<textarea></textarea>
+				</div>
+			</div>
+		</script>
+		<!--
+		<sciprt type="text/html">
+			<a class="mv-tile" href="javascript:;">
+				<div class="mv-favicon">
+					<img src="https://s2.googleusercontent.com/s2/favicons?domain_url=http%3A%2F%2Fwww.gameone.kr%2F&amp;alt=s&amp;sz=32" title="">
+				</div>
+				<div class="mv-title" style="direction: ltr;">게임원</div>
+				<div class="mv-thumb">
+					<img title="게임원" class="thumbnail" src="">
+				</div>
+				<div title="삭제" class="mv-x">
+				</div>
+			</a>
+		</sciprt>
+		-->
+		<script type="text/javascript" src="js/memo.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>		
 	</body>
 </html>

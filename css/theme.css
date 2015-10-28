@@ -1,0 +1,145 @@
+/*body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}*/
+
+.border1 {
+	border: 1px solid #ddd;
+}
+
+.border-bottom {
+	border-bottom: 1px solid #ddd;
+}
+
+.width150 {
+	width: 150px
+}
+.height100{
+	height: 100px
+}
+.height150{
+	height: 150px
+}
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  width: auto;
+}
+
+.pin-back {
+	background:url('../img/pirelli.png');
+}
+
+#memos {
+	padding: 5px;
+	position: relative;
+	width:1000px; height:800px
+}
+.memo {
+	position: absolute;
+	border: 1px solid rgba(150,150,150,0.3137254901960784)
+}
+.memo-header {
+	height: 20px;
+	background-color: rgba(243, 243, 243, 0.85098);
+	border-bottom: 1px solid grey
+}
+/*
+.memo-header:hover {
+	border-bottom: 1px solid grey
+}
+*/
+
+.memo-header .memo-input {
+  overflow: hidden;
+  position: absolute;
+  text-overflow: clip;
+}
+.memo-header input.datepicker{font-family:'돋움',dotum;width:90px;height:18px;line-height:19px;border:none;padding:0 8px;vertical-align:top; background: transparent}
+.memo-header input.datepicker:hover{border:1px dotted #c8c8c8;}
+
+.memo-header .memo-button {
+  /*-webkit-transition: opacity 150ms;*/
+  border: none;
+  cursor: pointer;
+  /*opacity: 0;*/
+  /*position: absolute;*/
+}
+
+.memo-header .important {
+	content: -webkit-image-set(
+      url(../img/star4.png) 1x);
+	-webkit-mask-position: 0;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: 18px 18px;
+	/*background-color: rgba(90,90,90,0.7);*/
+	
+	display: block;
+	height: 18px;
+	position: absolute;
+	right: 22px;
+	width: 18px;
+ }
+.memo-header .checked {
+	content: -webkit-image-set(
+      url(../img/star-lit4.png) 1x);
+}
+
+.memo-header .remove {
+	-webkit-mask-image: -webkit-image-set(
+      url(../img/close_3_mask.png) 1x);
+	-webkit-mask-position: 4px 4px;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: 10px 10px;
+	background-color: rgba(90,90,90,0.7);
+	content: '';
+	display: block;
+	height: 18px;
+	position: absolute;
+	right: 0;
+	width: 18px;
+ }
+.memo-content {
+	padding: 5px;
+	height: 120px
+}
+.memo-content:hover{
+	cursor:text
+}
+.memo-content > span {
+	word-break: break-all;
+	display:block;
+}
+.memo-content > span.stroke-out {
+	text-decoration: line-through;
+}
+
+.memo-content > span:hover {
+	cursor: pointer
+}
+
+.memo-content.focus > span {
+	display:none;
+}
+
+.memo-content > textarea {
+	display:none;
+	width:130px;
+	height:100px;
+	border: transparent;
+}
+.memo-content.focus > textarea {
+	display:block;
+}
+
+.readonly {
+	cursor: default
+}
