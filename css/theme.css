@@ -11,6 +11,15 @@
 	border-bottom: 1px solid #ddd;
 }
 
+.noselect * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .width150 {
 	width: 150px
 }
@@ -41,11 +50,21 @@
 #memos {
 	padding: 5px;
 	position: relative;
-	width:1000px; height:800px
+	width:1000px; height:800px;
+}
+.line {
+	border-bottom: 1px solid red;
+	height: 1px;
+	z-index: -10;
 }
 .memo {
 	position: absolute;
-	border: 1px solid rgba(150,150,150,0.3137254901960784)
+	border: 1px solid rgba(150,150,150,0.3137254901960784);
+	-webkit-transition: border 200ms
+}
+.memo:hover{
+
+	border: 5px groove rgba(150,150,150,0.3137254901960784);
 }
 .memo-header {
 	height: 20px;

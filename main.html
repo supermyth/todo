@@ -11,6 +11,7 @@
 		<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 		<script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script type="text/javascript">var debug = true;</script>
 	</head>
 	<body>
 		<div class="container">
@@ -30,7 +31,7 @@
 							<button type="button" class="btn btn-sm btn-info" onclick="javascript:alert('COMMING SOON');">Copy from yesterday</button>
 							<button type="button" class="btn btn-sm btn-primary" onclick="javascript:alert('COMMING SOON');">Archive This</button>
 						</div>
-						<div id="memos" class="clearfix border1">
+						<div id="memos" class="clearfix border1 noselect">
 							
 						</div>
 						
@@ -54,6 +55,16 @@
 					<textarea></textarea>
 				</div>
 			</div>
+		</script>
+		<script type="text/html" id="line">
+			<div style="
+			    margin-left: 400px;
+			    margin-top: 200px;
+			    width: 350px;
+			    height: 1px;
+			    border-bottom: 1px solid red;
+			    -webkit-transform: rotate(10deg);
+			"></div>
 		</script>
 		<!--
 		<sciprt type="text/html">
