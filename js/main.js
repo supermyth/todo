@@ -28,6 +28,18 @@ $("document").ready(function(){
 					EnvFun.cleanUp();
 					Env.add.addable = true;
 				}
+			},
+			addableTimerId : null,
+			useAddableTimer : function(){
+				if(Env.add.addableTimerId !== null){
+					clearTimeout(Env.add.addableTimerId);
+					Env.add.addableTimerId = null;
+				}
+				Env.add.setAddable(false);
+				Env.add.addableTimerId = setTimeout(function(){
+					Env.add.setAddable(true);
+				}, 500);
+
 			}
 		},
 		focus : {
@@ -71,39 +83,30 @@ $("document").ready(function(){
 	$memos.on({
 		'mouseup' : function(e) {
 			if(Env.focus.isFocused()){
-				e.stopPropagation();
-				e.preventDefault();
-				var $target = Env.focus.$el;
-				moveTo($target, e.offsetX, e.offsetY);
-// 				$target.css({marginLeft : x, marginTop : y});
-				// TODO redraw if line exists
-				
+				var $target = Env.focus.$el, $this = $(e.currentTarget);
+				if(!isEqual($target, $this)){
+					e.stopPropagation();
+					e.preventDefault();
+	
+					moveTo($target, e.offsetX, e.offsetY);
+					Env.focus.removeFocus();
+					// TODO redraw if line exists
+				}
 			}	
 		},
 		'dblclick' : function(e){
 			e.stopPropagation();
 			e.preventDefault();
-			addNewMemo(e.offsetX, e.offsetY);
+			if(Env.add.isAddable()){
+				addNewMemo(e.offsetX, e.offsetY);	
+			}
+			
 		}
 	});
 	
 	
 	var registEvents = function(){
-		$(".memo").on({
-			'mousedown' : function(e){
-				var $this = $(e.currentTarget);
-				console.log("mouseDown : " + $this.data("id"));
-				Env.focus.giveFocus($this);
-			},
-			'mouseup' : function(e){
-				var $this = $(e.currentTarget);
-				console.log("mouseUp : " + $this.data("id"));
-				if(Env.focus.isFocused() && Env.focus.$el !== $this){
-					drawLine(Env.focus.$el, $this);
-				}
-				Env.focus.removeFocus();
-			}
-		});
+		
 		$(".memo-content").click(function(e){
 			e.stopPropagation();
 			e.preventDefault();
@@ -130,6 +133,7 @@ $("document").ready(function(){
 			e.preventDefault();
 			var $this = $(e.currentTarget);
 			if($this.parent().parent().data("readonly") !== "true"){
+				Env.add.useAddableTimer();
 				if($this.data("checked") === "true"){
 					if($this.hasClass("checked")){
 						$this.removeClass("checked");
@@ -145,6 +149,7 @@ $("document").ready(function(){
 		$(".memo-button.remove").click(function(e){
 			e.stopPropagation();
 			e.preventDefault();
+			Env.add.useAddableTimer();
 			var $this = $(e.currentTarget);
 			var $memo = $this.parent().parent();
 			var $span = $memo.find(".memo-content span");
@@ -158,6 +163,27 @@ $("document").ready(function(){
 				$memo.data("readonly", "true");
 			}
 			Env.focus.removeFocus();
+		});
+		$(".memo").on({
+			'mousedown' : function(e){
+				var $this = $(e.currentTarget);
+				console.log("mouseDown : " + $this.data("id"));
+// 				if($this === $(e.target)){
+					Env.focus.giveFocus($this);	
+// 				}
+				
+			},
+			'mouseup' : function(e){
+				var $this = $(e.currentTarget);
+				console.log("mouseUp : " + $this.data("id"));
+// 				if($this === $(e.target)){
+					if(Env.focus.isFocused() && !isEqual(Env.focus.$el, $this)){
+						drawLine(Env.focus.$el, $this);
+					}
+					Env.focus.removeFocus();	
+// 				}
+				
+			}
 		});
 	};
 	
@@ -181,6 +207,9 @@ $("document").ready(function(){
 	        changeYear : true        
 	    });
 		$datepicker.datepicker('setDate', new Date());
+		$datepicker.click(function(e){
+			Env.add.useAddableTimer();
+		});
 		$memos.append($cloneMemoSample);
 		registEvents();
 		$cloneMemoSample.find(".memo-content").click();
@@ -201,5 +230,10 @@ $("document").ready(function(){
 		console.log("to (" + toX + ", " + toY + ")");
 		var $div = $("<div class='line'></div>");
 		
+	};
+	
+	var isEqual = function($first, $second){
+		var id1 = $first.data("id") || "empty1", id2 = $second.data("id") || "empty2";
+		return id1 === id2;
 	};
 })
