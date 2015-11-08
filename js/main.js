@@ -110,8 +110,11 @@ $("document").ready(function(){
 			},
 			saveThis : function(){
 				Env.save.autoSaveActivate = false;
+				_.each($memos.find(".memo"), function(memo){
+					changeDateColor($(memo));					
+				});
+
 				// TODO save action
-				
 				// end
 				Env.save.autoSaveActivate = true;
 			},
