@@ -4,13 +4,16 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title>TODO</title>
-		<link rel="stylesheet" href="bower_components/jquery-ui/themes/ui-lightness/jquery-ui.min.css">
+<!--		<link rel="stylesheet" href="bower_components/jquery-ui/themes/ui-lightness/jquery-ui.min.css">-->
+		<link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css">
 		<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 		<link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="css/theme.css" rel="stylesheet">
 		<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 		<script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="bower_components/jquery-svg/jquery.svg.min.js"></script>		
 		<script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
 		<script type="text/javascript">var debug = true;</script>
 	</head>
 	<body>
@@ -21,22 +24,33 @@
 						<a href="#now" data-toggle="tab">Now</a>
 					</li>
 					<li>
-						<a href="#archived">Archived</a>
+						<a href="#archived" data-toggle="tab">Archived</a>
 					</li>
 				</ul>
-				<div id="components" style="position:relative">
-					<div id="now" style="height:1000px">
+				<div id="components" class="tab-content" style="position:relative">
+					<div id="now" class="tab-pane fade active in" style="height:1000px">
 						<div class="page-header">
 							<label>Double Click to Add New</label>
-							<button type="button" class="btn btn-sm btn-info" onclick="javascript:alert('COMMING SOON');">Copy from yesterday</button>
-							<button type="button" class="btn btn-sm btn-primary" onclick="javascript:alert('COMMING SOON');">Archive This</button>
+							<button type="button" class="btn btn-sm btn-info" id="copy_from_yesterday">Copy from yesterday</button>
+							<button type="button" class="btn btn-sm btn-primary" id="archive_this">Archive This</button>
 						</div>
-						<div id="memos" class="clearfix border1 noselect">
+						<div class="memos clearfix border1 noselect">
 							
 						</div>
 						
 					</div>
-					<div id="archived" class="invisible"></div>
+					<div id="archived" class="tab-pane fade">
+						<div class="page-header">
+							<input type="text" class="datepicker" id="archived_datepicker" readonly="readonly">
+							<!--<label>Double Click to Add New</label>
+							<button type="button" class="btn btn-sm btn-info" onclick="javascript:alert('COMMING SOON');">Copy from yesterday</button>
+							<button type="button" class="btn btn-sm btn-primary" onclick="javascript:alert('COMMING SOON');">Archive This</button>
+							-->
+						</div>
+						<div class="memos clearfix border1 noselect canvas">
+							
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -45,13 +59,14 @@
 			<div class="memo border1 width150 height150">
 				<div class="memo-header">
 					<div class="memo-input">
-						<input type="text" class="datepicker" />
+						<input type="text" class="datepicker d_datepicker" />
 					</div>
 					<div class="memo-button important"></div>
 					<div class="memo-button remove"></div>
 				</div>
 				<div class="memo-content">
-					<span></span>
+					<!--<span></span>-->
+					<p></p>
 					<textarea></textarea>
 				</div>
 			</div>
