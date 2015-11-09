@@ -137,6 +137,7 @@ svg {
 	cursor:text
 }
 .memo-content > p {
+	margin-bottom: 0;
 	word-break: break-all;
 	display:block;
 	display:-webkit-box;
@@ -173,4 +174,8 @@ svg {
 
 .readonly {
 	cursor: default
+}
+
+.slider-selection {
+	background: #BABABA;
 }

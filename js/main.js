@@ -7,17 +7,13 @@ $("document").ready(function(){
 	}
 	var Env = {
 		id : {
-			memoId : 0,
 			memoString : "Memo",
 			nextMemoId : function(){
-				Env.id.memoId++;
-				return Env.id.memoString + EnvFun.getTodayDate() + Env.id.memoId;
+				return Env.id.memoString + EnvFun.getTodayDateTime();
 			},
-			lineId : 0,
 			lineString : "Line",
 			nextLineId : function(){
-				Env.id.lineId++;
-				return Env.id.lineString + EnvFun.getTodayDate() + Env.id.lineId;
+				return Env.id.lineString + EnvFun.getTodayDateTime();
 			}
 		},
 		add : {
@@ -113,9 +109,7 @@ $("document").ready(function(){
 				_.each($memos.find(".memo"), function(memo){
 					changeDateColor($(memo));					
 				});
-
-				// TODO save action
-				// end
+				$.jStorage.set(EnvFun.getTodayDate(), $memos.html());
 				Env.save.autoSaveActivate = true;
 			},
 			autoSave : function(){
@@ -131,12 +125,14 @@ $("document").ready(function(){
 	Env.save.autoSaveActivate = true;
 	var EnvFun = {
 		cleanUp : function(){
-			// TODO remove textarea focus
 			Env.focus.removeFocus();
 		},
 		getTodayDate : function(format){
 			var localFormat = format || "yymmdd";
 			return $.datepicker.formatDate(localFormat, new Date());
+		},
+		getTodayDateTime : function(){
+			return (new Date()).getTime();
 		}
 	};
 	$("#tabs li a").click(function(e){
@@ -145,7 +141,8 @@ $("document").ready(function(){
 			
 		}
 	});
-	var $memos = $(".memos").eq(0),
+	var $memos = $(".memos:eq(0)"),
+		$archivedMemos = $(".memos:eq(1)"),
 		$memoSample = $("#memo_sample");
 	var paddingX = 150, paddingY = 150;
 	var $copyFromYesterday = $("#copy_from_yesterday"), $archiveThis = $("#archive_this");
@@ -186,16 +183,62 @@ $("document").ready(function(){
 	$copyFromYesterday.click(function(e){
 		var proc = true;
 		if($memos.find(".memo").size() > 0){
-			proc = confirm("There are memos more than one. Will you remove whole and DO copy from yesterday?");
+			proc = confirm("There are memos more than one. Will you remove whole and copy from yesterday?");
 		} 
 		
 		if(proc){
-			// TODO copy from yesterday
+			var yesterday = $.datepicker.formatDate('yymmdd', new Date(new Date() - 24*60*60*1000));
+			var $yesterday = $.jStorage.get(yesterday);
+			if(_.isEmpty($yesterday)){
+				if(confirm("There is no data from yesterday. Will you copy from last memos?")){
+					var keys = $.jStorage.index();
+					var key = _.max(
+						_.filter(keys, function(k){
+							return k.length == 8;						
+						})
+					);
+					if(!_.isEmpty(key)){
+						$yesterday = $.jStorage.get(key);
+					} else {
+						return;
+					}
+				} else {
+					return;
+				}
+			}
+			$memos.children().remove();
+			$memos.removeClass("hasSVG");
+			var $html = $($yesterday);
+			$memos.svg();
+			var $svgLines = $html.find("line");
+			if(!_.isEmpty($svgLines)){
+				var $svg = $memos.find("svg");
+				_.each($svgLines, function(line){
+					var $line = $(line);
+					registLineEvents($line);
+					$svg.append($svgLines);
+				});
+
+			}	
+			_.each($html.siblings(".memo"), function(memo){
+				var $memo = $(memo);
+				$memos.append($memo);
+				registEvents($memo);				
+			});
+			if(!_.isEmpty($memos.find(".memo-content p.stroke-out")) && confirm("Will you remove all completed memos?")){
+				_.each($memos.find(".memo-content p.stroke-out"), function(p){
+					var $p = $(p), $memo = $p.parent().parent();
+					removeMemo($memo, $memo.index());
+				});
+			}
+
 		}
 	});
 	
 	$archiveThis.click(function(e){
-		
+		var id = "a" + EnvFun.getTodayDate("yy-mm-dd");
+		$.jStorage.set(id, $memos.html());
+		alert("archived : " + EnvFun.getTodayDate("yy-mm-dd")); 
 	});
 	
 	var setDefaults = function(){
@@ -206,113 +249,96 @@ $("document").ready(function(){
 	        changeMonth : true,
 	        changeYear : true,
 	        onSelect : function(date){
-		        // TODO get archived data from db 
+		        var html = $.jStorage.get("a" + date, null);
 		        // if empty, return alert
+		        if(_.isEmpty(html)){
+			        alert("There is no archived data");
+		        } else {
+					$html = $(html);
+			        $archivedMemos.children().remove();
+			        if($archivedMemos.hasClass("hasSVG")){
+				    	$archivedMemos.removeClass("hasSVG");    
+			        }
+					
+					$archivedMemos.svg();
+					var $svgLines = $html.find("line");
+					if(!_.isEmpty($svgLines)){
+						var $svg = $archivedMemos.find("svg");
+						_.each($svgLines, function(line){
+							var $line = $(line);
+							$svg.append($svgLines);
+						});
+		
+					}	
+					_.each($html.siblings(".memo"), function(memo){
+						var $memo = $(memo);
+						var $dateInput = $memo.find("input.d_datepicker");
+						$dateInput.val($dateInput.attr("date"));
+						$dateInput.prop("readonly", true);
+						$archivedMemos.append($memo);
+					});
+					
+		        }
 		        
 	        }        
 	    });
-		$archivedDatepicker.datepicker('setDate', new Date(maxDate - 24*60*60*1000));
+// 		$archivedDatepicker.datepicker('setDate', new Date(maxDate - 24*60*60*1000));
+		$archivedDatepicker.datepicker('setDate', maxDate);
+		var html = $.jStorage.get(EnvFun.getTodayDate(), null)
+		if(html !== null){
+			var $html = $(html);
+			$memos.svg();
+			var $svgLines = $html.find("line");
+			if(!_.isEmpty($svgLines)){
+				var $svg = $memos.find("svg");
+				_.each($svgLines, function(line){
+					var $line = $(line);
+					registLineEvents($line);
+					$svg.append($svgLines);
+				});
+
+			}
+
+			_.each($html.siblings(".memo"), function(memo){
+				var $memo = $(memo);
+				$memos.append($memo);
+				registEvents($memo);
+			});
+		} else {
+			$memos.svg();			
+		}
 		
-		$(".memos").svg();
 	};
-	setDefaults();
 	
 	var registEvents = function($dom){
-		
-		$dom.find(".memo-content").click(function(e){
-// 			e.stopPropagation();
-			e.preventDefault();
-			var $this = $(e.currentTarget);
-			if($this.parent().prop("readonly") !== "true"){
-// 				var content = $this.find("span").text();
-				var content = $this.find("p").text();
-// 				$this.find("p").children().remove();				
-				$this.find("textarea").val(content);
-				$this.addClass("focus");
-				Env.add.setAddable(false);
-				$this.find("textarea").focus();
-			}
-
-		});
-		$dom.find(".memo-content textarea").blur(function(e){
-			var $this = $(e.currentTarget);
-			var content = $this.val();
-// 			$this.parent().find("span").text(content);
-// 			if( $this.parent().parent().find(".important").hasClass("checked")){
-// 				$this.parent().find("p").html("<mark>" + content + "</mark>");			
-// 			} else {
-				$this.parent().find("p").text(content);			
-// 			}
-			
-			$this.parent().removeClass("focus");
-			Env.focus.removeFocus();
-			Env.save.saveThis();
-			Env.add.setAddable(true);
-		});
-		$dom.find(".memo-button.important").click(function(e){
-			e.stopPropagation();
-			e.preventDefault();
-			var $this = $(e.currentTarget);
-			if($this.parent().parent().prop("readonly") !== "true"){
-				Env.add.useAddableTimer();
-				if($this.prop("checked") === "true"){
-					if($this.hasClass("checked")){
-						$this.removeClass("checked");
-					}		
-					$this.prop("checked", "false");
-				} else {
-					$this.addClass("checked");
-					$this.prop("checked", "true");				
-				}
-			}
-			Env.focus.removeFocus();
-		});	
-		$dom.find(".memo-button.remove").click(function(e){
-			e.stopPropagation();
-			e.preventDefault();
-			Env.add.useAddableTimer();
-			var $this = $(e.currentTarget);
-			var $memo = $this.parent().parent();
-			var $span = $memo.find(".memo-content span");
-			if($span.text() === ""){
-				$memo.unbind();
-				$memo.remove();
-			} else {
-				$span.addClass("stroke-out");
-				$memo.addClass("readonly");
-				$memo.prop("remove", "true");
-				$memo.prop("readonly", "true");
-			}
-			Env.focus.removeFocus();
-		});
-
-	};
-	
-	var moveTo = function($dom, x, y, e){
-		var offset = $memos.offset();
-		$dom.offset({left : calX(x) + offset.left - 1, top : calY(y) + offset.top - 1})
-		console.log("move To (" + x +", " + y + ")");
-	};
-	
-	var addNewMemo = function(x, y){
-		var $cloneMemoSample = $($memoSample.html());
-
-		$cloneMemoSample.attr("id", Env.id.nextMemoId());
+		var $cloneMemoSample = $dom;
 		var $datepicker = $cloneMemoSample.find(".d_datepicker");
+		if($datepicker.hasClass("hasDatepicker")){
+			$datepicker.removeClass("hasDatepicker");
+		}
+
 		var minDate = new Date();
 	    $datepicker.datepicker({
 	        minDate : minDate,
 	        changeMonth : true,
 	        changeYear : true
 	    });
-		$datepicker.datepicker('setDate', new Date());
+	    if(_.isEmpty($datepicker.attr("date"))){
+			$datepicker.datepicker('setDate', new Date());
+			$datepicker.attr("date", EnvFun.getTodayDate("yy-mm-dd"));    
+	    } else {
+			var dateText = $datepicker.attr("date");
+			$datepicker.datepicker('setDate', dateText);
+	    }
+		
 		$datepicker.click(function(e){
 			Env.add.useAddableTimer();
 		});
-		$datepicker.datepicker( 'option' , 'onClose', function() {
+		$datepicker.datepicker( 'option' , 'onClose', function(dateText) {
 			if(_.isEmpty($datepicker.val())){
 				$datepicker.val(minDate);
 			}
+			$datepicker.attr("date", dateText);
 			changeDateColor($cloneMemoSample);
 		});
 		$cloneMemoSample.draggable({
@@ -320,10 +346,12 @@ $("document").ready(function(){
 			opacity : 0.7,
 			cursor : 'move',
 			start : function(){
+				Env.save.autoSaveActivate = false;
 				var $this = $(this);
 				$this.attr({"left" : $this.offset().left, "top" : $this.offset().top, "move" : "move"});
 			},
-			stop : function(){
+			stop : function(e, ui){
+
 				var $this = $(this), id = $this.attr("id");
 				if($this.attr("move") === "move"){
 					var sizeX = $this.width() / 2, sizeY = $this.height() / 2;
@@ -347,7 +375,10 @@ $("document").ready(function(){
 					
 					$this.attr("move", "");
 				}
-				
+				Env.save.autoSaveActivate = true;
+				if(!_.isEmpty($memos.find(".memo .focus"))){
+					setTimeout(function(){ $memos.find(".memo .focus textarea").blur();	}, 100);
+				}
 			}
 		});
 
@@ -356,15 +387,194 @@ $("document").ready(function(){
 			activeClass: "ui-state-hover",
 			hoverClass: "ui-state-highlight",
 		    drop: function( event, ui ) {
-			    console.log('drop');
+			    if(!!debug){
+			    	console.log('drop');
+			    }
 			    var $draggable = $(ui.draggable), $this = $(this);
 			    $draggable.offset({"left" : $draggable.attr("left") || $draggable.offset().left, "top" : $draggable.attr("top") || $draggable.offset().top});
 			    drawLine($draggable, $this, $this);
 			    $draggable.attr("move", "");
 			    return false;
+			},
+			over: function(event, ui) {
+				if(!!debug){
+					console.log('over');	
+				}
+				if($(this).hasClass("ui-state-error")){
+					$(this).removeClass("ui-state-error");
+				}
+			},
+			out: function(event, ui) {
+				if(!!debug){
+					console.log('out');	
+				}				
+				changeDateColor($(this));
+			}
+		});
+		var $remainSlider = $cloneMemoSample.find("div.slider");
+		if(!_.isEmpty($remainSlider)){
+			$remainSlider.remove();
+		}
+		var slider = $cloneMemoSample.find("input:eq(1)").bootstrapSlider({
+			tooltip_position : "bottom",
+			handle : "triangle",
+			min : 0,
+			max : 10,
+			step : 1,
+			formatter : function(value){
+				return "progress : " + (value*10) + "%";
+			}
+		});
+		
+		slider.on({
+			'slideStop' : function(e){
+				Env.add.useAddableTimer();
+				var $this = $(this), $memo = $this.parent().parent(), value = e.value;
+				var $p = $this.siblings("p");
+				$this.attr("prog", value);
+				if(value == 10){
+					if(!$p.hasClass("stroke-out")){
+						$p.addClass("stroke-out");
+					}
+				} else {
+					if($p.hasClass("stroke-out")){
+						$p.removeClass("stroke-out");
+					}
+				}
+				if(!_.isEmpty($memos.find(".memo .focus"))){
+					$memos.find(".memo .focus textarea").blur();	
+				}
+				
 			}
 		});
 
+		if(_.isEmpty($cloneMemoSample.find("p").text())){
+			slider.bootstrapSlider('disable');
+			slider.bootstrapSlider('setValue', 0, true);
+		} else {
+			slider.bootstrapSlider('enable');
+			var sliderValue = $cloneMemoSample.find("input:eq(1)").attr("prog") || 0;
+			slider.bootstrapSlider('setValue', parseInt(sliderValue), true);
+		}
+		
+		$dom.find(".memo-content p").click(function(e){
+			e.stopPropagation();
+			e.preventDefault();
+			var $this = $(e.currentTarget);
+			var $content = $this.parent();
+			if($content.parent().prop("readonly") !== "true"){
+				var content = $this.text();
+				
+				$content.find("textarea").val(content);
+				$content.addClass("focus");
+				Env.add.setAddable(false);
+				$content.find("textarea").focus();
+			}
+
+		});
+		$dom.find(".memo-content textarea").on({
+			'blur' : function(e){
+				var $this = $(e.currentTarget);
+				var content = $this.val();
+				$this.parent().removeClass("focus");
+				$this.parent().find("p").text(content);			
+				if(_.isEmpty(content)){
+					$this.parent().find("input.d_progress_slider").bootstrapSlider('disable').bootstrapSlider('setValue', 0, true);
+/*
+					if($this.hasClass("stroke-out")){
+						$this.removeClass("stroke-out");
+					}
+*/
+				} else {
+					$this.parent().find("input.d_progress_slider").bootstrapSlider('enable');
+				}
+				Env.focus.removeFocus();
+				Env.save.saveThis();
+				Env.add.setAddable(true);
+			},
+			'keyup' : function(e){
+				var $this = $(e.currentTarget);
+				var content = $this.val();
+				if(_.isEmpty($this.siblings("p").text()) && _.isEmpty(content)){
+					$this.parent().find("input.d_progress_slider").bootstrapSlider('disable').bootstrapSlider('setValue', 0, true);
+/*
+					if($this.siblings("p").hasClass("stroke-out")){
+						$this.siblings("p").removeClass("stroke-out");
+					}
+*/
+				} else {
+					$this.parent().find("input.d_progress_slider").bootstrapSlider('enable');
+				}
+			}
+		});
+
+		$dom.find(".memo-button.important").click(function(e){
+			e.stopPropagation();
+			e.preventDefault();
+			var $this = $(e.currentTarget);
+			if($this.parent().parent().prop("readonly") !== "true"){
+				Env.add.useAddableTimer();
+				if($this.prop("checked") === "true"){
+					if($this.hasClass("checked")){
+						$this.removeClass("checked");
+					}		
+					$this.prop("checked", "false");
+				} else {
+					$this.addClass("checked");
+					$this.prop("checked", "true");				
+				}
+			}
+			Env.focus.removeFocus();
+		});	
+		$dom.find(".memo-button.remove").click(function(e){
+			e.stopPropagation();
+			e.preventDefault();
+
+			if(confirm("You really want to delete this memo?")){
+				Env.add.useAddableTimer();
+				var $this = $(e.currentTarget);
+				var $memo = $this.parent().parent();
+				removeMemo($memo, $memo.index());
+			}
+
+			Env.focus.removeFocus();
+		});
+
+	};
+	var removeMemo = function($memo, index){
+				
+		$memo.unbind();
+		// remove all Lines
+		var lines = $memo.attr("lines") || "";
+		lines = _.isEmpty(lines) ? _.toArray(lines) : lines.split(",");
+		
+		_.each(lines, function(line){
+			deleteLine($("#"+line));
+		});
+		var $afters = $memos.find(".memo:gt("+index+")");
+		// remove this
+		$memo.remove();	
+		// re-arrange all memos
+		_.each($afters, function(memo){
+			var $memo = $(memo);
+			var offsetX = $memo.attr("left"), offsetY = $memo.attr("top");
+			$memo.offset({left : offsetX, top : offsetY});
+		});
+
+	};
+	var moveTo = function($dom, x, y, e){
+		var offset = $memos.offset();
+		var offsetX = calX(x) + offset.left - 1, offsetY = calY(y) + offset.top - 1;
+		$dom.offset({left : offsetX, top : offsetY});
+		$dom.attr({left : offsetX, top : offsetY});
+		console.log("move To (" + x +", " + y + ")");
+	};
+	
+	var addNewMemo = function(x, y){
+		var $cloneMemoSample = $($memoSample.html());
+
+		$cloneMemoSample.attr("id", Env.id.nextMemoId());
+		
 		$memos.append($cloneMemoSample);
 		moveTo($cloneMemoSample, x, y);
 		registEvents($cloneMemoSample);
@@ -415,22 +625,7 @@ $("document").ready(function(){
 			svg.line(fromX + (fromSizeX / 2), fromY + (fromSizeY / 2), toX + (toSizeX / 2), toY + (toSizeY / 2), settings);
 			var $line = $("#"+lineId);
 			$line.attr({from : $from.attr("id"), to : $to.attr("id")});
-			$line.mouseover(function(e){
-				var $this = $(this);
-				if(!!debug){
-					console.log("over");	
-				}
-				if(Env.rubbing.isStandBy()){
-					Env.rubbing.setRubbingElement($this);
-					Env.rubbing.addCount();
-					if(!!debug){
-						console.log(Env.rubbing.getCount());	
-					}
-					if(Env.rubbing.isInvokeRubbingEvent()){
-						deleteLine($this);					
-					}
-				}
-			});
+			registLineEvents($line);
 			
 			fromLine.push(lineId), toLine.push(lineId);
 			$from.attr("lines", fromLine), $to.attr("lines", toLine);
@@ -441,7 +636,24 @@ $("document").ready(function(){
 		}
 		
 	};
-	
+	var registLineEvents = function($line){
+		$line.mouseover(function(e){
+			var $this = $(this);
+			if(!!debug){
+				console.log("over");	
+			}
+			if(Env.rubbing.isStandBy()){
+				Env.rubbing.setRubbingElement($this);
+				Env.rubbing.addCount();
+				if(!!debug){
+					console.log(Env.rubbing.getCount());	
+				}
+				if(Env.rubbing.isInvokeRubbingEvent()){
+					deleteLine($this);					
+				}
+			}
+		});
+	};
 	var isLinked = function(from, to){
 		var result = false;
 		_.each(from, function(item){
@@ -472,5 +684,5 @@ $("document").ready(function(){
 			id2 = $second === null ? "null2" : $second.attr("id") ||  "empty2";
 		return id1 === id2;
 	};
-
+	setDefaults();
 })
