@@ -48,7 +48,9 @@ svg {
 .pin-back {
 	background:url('../img/pirelli.png');
 }
-
+.priority-high{
+	z-index:10;
+}
 .memos {
 	padding: 5px;
 	position: relative;
@@ -65,8 +67,10 @@ svg {
 	-webkit-transition: border 200ms
 }
 .memo:hover{
-
 	border: 5px groove rgba(150,150,150,0.3137254901960784);
+}
+.memo:not(.ui-state-error):not(.ui-state-highlight):not(.ui-state-active):not(.ui-state-hover){
+	background: white;
 }
 .memo-header {
 	height: 20px;

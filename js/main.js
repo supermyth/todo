@@ -512,15 +512,24 @@ $("document").ready(function(){
 			e.stopPropagation();
 			e.preventDefault();
 			var $this = $(e.currentTarget);
-			if($this.parent().parent().prop("readonly") !== "true"){
+			var $memo = $this.parent().parent();
+			if($memo.prop("readonly") !== "true"){
 				Env.add.useAddableTimer();
 				if($this.prop("checked") === "true"){
 					if($this.hasClass("checked")){
 						$this.removeClass("checked");
 					}		
+					if($memo.hasClass("priority-high")){
+						$memo.removeClass("priority-high")
+					}
 					$this.prop("checked", "false");
 				} else {
-					$this.addClass("checked");
+					if(!$this.hasClass("checked")){
+						$this.addClass("checked");
+					}
+					if(!$memo.hasClass("priority-high")){
+						$memo.addClass("priority-high");	
+					}
 					$this.prop("checked", "true");				
 				}
 			}
